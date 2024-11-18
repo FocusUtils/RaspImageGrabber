@@ -22,6 +22,7 @@ $(window).on("load", () => {
     const sleep_time_after_step_input = document.getElementById("sleep-time-after-step-input")
     const whatsapp_number_input = document.getElementById("whatsapp-number-input");
     const whatsapp_api_key_input = document.getElementById("whatsapp-api-key-input")
+    const execution_mode_input = document.getElementById("execution-mode-input")
 
     let mspr_value = mspr_input.value;
     let dpr_value = dpr_input.value;
@@ -32,6 +33,7 @@ $(window).on("load", () => {
     let sleep_time_after_step_value = sleep_time_after_step_input.value;
     let whatsapp_number_value = whatsapp_number_input.value;
     let whatsapp_api_key_value = whatsapp_api_key_input.value;
+    let execution_mode_value = execution_mode_input.value;
 
     // event handlers
 
@@ -43,7 +45,8 @@ $(window).on("load", () => {
         const id_name_table = {
             "gpio-default-on-input": "GPIO-default-on",
             "gpio-motor-pins-input": "GPIO-motor-pins",
-            "gpio-camera-pin-input": "GPIO-camera-pin"
+            "gpio-camera-pin-input": "GPIO-camera-pin",
+            "execution-mode-input": "execution-mode"
         }
 
         const attr_name = id_name_table[attr_id];
@@ -241,5 +244,8 @@ $(window).on("load", () => {
 
     $.get("/settings/whatsapp-api-key", (async = false), (value) => {
         $("#whatsapp-api-key-input").val(parseFloat(value))
+    });
+    $.get("/settings/execution-mode", (async = false), (value) => {
+        $("#execution-mode-input").val(value);
     });
 });

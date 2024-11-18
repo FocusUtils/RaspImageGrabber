@@ -11,6 +11,8 @@ import time
 from libs.notifier import send_text_to_whatsapp
 from sbNative.runtimetools import get_path
 import json
+import traceback
+from colorama import Fore
 
 
 def start_motor_and_prepare_recording():
@@ -25,6 +27,7 @@ def start_motor_and_prepare_recording():
                 break
             
             if State.real_motor_position < State.microscope_position:
+                start = time.perf_counter_ns()
                 State.real_motor_position += 1
                 State.motor.step_forward()
 
@@ -91,8 +94,13 @@ def start_motor_and_prepare_recording():
         time.sleep(2)
         State.recording_progress = 0
         State.current_recording_task = "Resetting attributes and notifying you..."
-        send_text_to_whatsapp("Your recording is done!")
-
+        try:
+            send_text_to_whatsapp("Your recording is done!")
+        except Exception as e:
+            traceback.print_exc()
+            ## print in yellow
+            print(f"{Fore.YELLOW}The error above occured while trying to send whatsapp message{Fore.RESET}")
+            
         State.start_motor_and_prepare_recording_running = False
         State.recording = False
         try:

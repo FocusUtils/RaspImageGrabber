@@ -98,3 +98,7 @@ input {
     }
 }
 
+#execution-mode *, #execution-mode > select {
+    color: red;
+    border-color: red;
+}

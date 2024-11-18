@@ -34,10 +34,11 @@ SETTING_KEYS = {
     "uppercase_motor_steps": int,
     "sleep_time_after_step": float,
     "whatsapp_number": str,
-    "whatsapp_api_key": str
+    "whatsapp_api_key": str,
+    "execution_mode": lambda s: {"False": False, "True": True}[s],
 }
 
-
+print(CONFIGURATION_FILE_PATH)
 if not os.path.exists(str(CONFIGURATION_FILE_PATH)):
     if not os.path.exists(str(CONFIGURATION_FILE_PATH.parent)):
         os.makedirs(str(CONFIGURATION_FILE_PATH.parent), exist_ok=True)
@@ -58,11 +59,19 @@ with open(str(CONFIGURATION_FILE_PATH), "r") as rf:
             wf.write("{}")
 
 
+
+class State:
+    execution_mode: ClassVar[bool] = False
+
+print(State.execution_mode)
+
 class ABSType:
     pass
 
 class Meta(type):
     def __setattr__(self, __name: str, __value: Any) -> None:
+        if State.execution_mode:
+            return super().__setattr__(__name, __value)
         hints = get_type_hints(self)
         
         class_hint = hints.get(__name)
@@ -130,8 +139,9 @@ class State(metaclass=Meta):
     lowercase_motor_steps: ClassVar[int]
     uppercase_motor_steps: ClassVar[int]
     sleep_time_after_step: ClassVar[float]
-    whatsapp_number: ClassVar[str]
-    whatsapp_api_key: ClassVar[str]
+    whatsapp_number: ClassVar[int]
+    whatsapp_api_key: ClassVar[int]
+    execution_mode: ClassVar[bool] = False
 
 
     @classmethod
@@ -201,6 +211,9 @@ class State(metaclass=Meta):
         if "sleep_time_after_step" in j.keys():
             State.sleep_time_after_step = j["sleep_time_after_step"]
         
+        if "execution-mode" in j.keys():
+            State.execution_mode = j["execution-mode"]
+        
         try:
             if "whatsapp_number" in j.keys():
                 State.whatsapp_number = str(j["whatsapp_number"])
@@ -208,7 +221,12 @@ class State(metaclass=Meta):
 
         try:
             if "whatsapp_api_key" in j.keys():
-                State.whatsapp_api_key = str(j["whatsapp_api_key"])
+                State.whatsapp_api_key = j["whatsapp_api_key"]
+        except ValueError:pass
+        
+        try:
+            if "execution_mode" in j.keys():
+                State.execution_mode = j["execution_mode"]
         except ValueError:pass
 
 def outgoing_webrequest(func):

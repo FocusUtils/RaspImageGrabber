@@ -33,9 +33,9 @@ function adjust_image_size() {
     let new_width;
     let new_height;
 
-    $.get("/settings/lowercase-motor-steps", (async = false), (value) => {
-        console.log(value);
-        if (!Boolean(value)) {
+    $.get("/settings/with-bms-cam", (async = false), (value) => {
+        if (value === "False") {
+            console.log("not bms cam");
             $(img_container).css("height", "4em");
             $(btn_container).css("height", "80%");
         }
