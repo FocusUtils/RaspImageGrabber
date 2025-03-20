@@ -33,12 +33,14 @@ $(window).on("load", () => {
     var total_steps;
     let dpr_value;
     let mspr_value;
+    const idd_input = document.getElementById("image-delta-distance-input");
+    const tia_input = document.getElementById("total-image-amount-input");
 
     $.get("/settings/microscope-start", (async = false), (start_pos) => {
         $.get("/settings/microscope-end", (async = false), (end_pos) => {
             total_steps = Math.abs(parseInt(start_pos) - parseInt(end_pos));
             $("#total-steps").text(total_steps)
-            update_all();
+            update_all(false);
         });
     });
 
@@ -49,17 +51,31 @@ $(window).on("load", () => {
 
     $.get("/settings/steps-per-motor-rotation", (async = false), (value) => {
         mspr_value = parseFloat(value);
-        update_all();
+        update_all(false);
     });
 
     $.get("/settings/distance-per-motor-rotation", (async = false), (value) => {
         dpr_value = parseFloat(value);
-        update_all();
+        update_all(false);
+    });
+
+    $.get("/settings/image-count", (async = false), (value) => {
+        console.log(value);
+        tia_input.value = value;
+        tia_value = parseFloat(value);
+        update_all(false);
     });
 
     let progressBar = document.getElementById("recording-progress-beam");
     let progressNum = document.getElementById("progress-value-num")
     progressBar.style.width = "0%";
+
+    $.get(`/recording-progress`).done((data) => {
+        
+        const processed_data = $.parseJSON(data);
+        progressBar.style.width = `${processed_data[0]}%`;
+        progressNum.innerHTML = `${processed_data[1]}`
+    });
 
     const socket = new WebSocket(`ws://${window.location.hostname}:65432`);
 
@@ -77,8 +93,6 @@ $(window).on("load", () => {
         socket.send(data);
     });
 
-    const idd_input = document.getElementById("image-delta-distance-input");
-    const tia_input = document.getElementById("total-image-amount-input");
 
     $("#image-delta-distance-form").submit(prevent_submit_and_unfocus);
     $("#total-image-amount-form").submit(prevent_submit_and_unfocus);
@@ -88,7 +102,7 @@ $(window).on("load", () => {
 
     let latest_typed = tia_input;
 
-    function update_all() {
+    function update_all(update_server_values = true) {
         let distance_per_step = dpr_value / mspr_value;
         let total_distance = total_steps * distance_per_step;
 
@@ -103,7 +117,7 @@ $(window).on("load", () => {
             idd_input.value = idd_value;
         }
 
-        if (tia_value != Infinity) {
+        if (tia_value != Infinity && idd_value != Infinity && update_server_values) {
             $.get(`/settings/recording`).done((data) => {
                 if (data === "False") {
                     console.log("updating values");

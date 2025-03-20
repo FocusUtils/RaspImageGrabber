@@ -249,3 +249,6 @@ def outgoing_webrequest(func):
         return ret
     return wrapper
         
+
+def create_progress_response():
+    return json.dumps((State.recording_progress, f"{State.recording_progress}% ({State.current_recording_task})"))

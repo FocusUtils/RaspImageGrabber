@@ -10,7 +10,7 @@ from pathlib import Path
 import os
 import json
 from libs import cameraParser
-from .state import State, SETTING_KEYS, abs_motor_type, abs_camera_type, abs_leds_type
+from .state import State, SETTING_KEYS, abs_motor_type, abs_camera_type, abs_leds_type, create_progress_response
 import socket
 import logging
 log = logging.getLogger('werkzeug')
@@ -82,7 +82,7 @@ def reset_camera_properties():
     State.recording = False
     State.start_motor_and_prepare_recording_running = False
     State.image_count = 1
-    State.recording_progress = None
+    State.recording_progress = 0
     State.current_recording_task = None
     State.current_image_index = 0
     State.current_lighting_index = 0
@@ -278,6 +278,10 @@ def get_cameras():
         ret += f'<option value="{idx}">{device.displayname}: {device.id}</option>\n'
 
     return ret.strip("\n")
+
+@app.route("/recording-progress", methods=["GET"])
+def recording_progress():
+    return create_progress_response()
 
 
 @app.route("/camera/<camera_idx>", methods=["POST"])

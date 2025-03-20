@@ -10,7 +10,7 @@ import asyncio
 import time
 from libs.notifier import send_text_to_whatsapp
 from sbNative.runtimetools import get_path
-import json
+from libs.state import create_progress_response
 import traceback
 from colorama import Fore
 
@@ -121,11 +121,6 @@ def start_motor_and_prepare_recording():
             State.camera.Close()
         except AttributeError:
             pass
-
-
-def create_progress_response():
-    return json.dumps((State.recording_progress, f"{State.recording_progress}% ({State.current_recording_task})"))
-
 
 async def respond(websocket):
     try:
