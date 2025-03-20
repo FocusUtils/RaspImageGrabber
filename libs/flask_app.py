@@ -10,7 +10,7 @@ from pathlib import Path
 import os
 import json
 from libs import cameraParser
-from .state import State, SETTING_KEYS, abs_motor_type, abs_camera_type
+from .state import State, SETTING_KEYS, abs_motor_type, abs_camera_type, abs_leds_type
 import socket
 import logging
 log = logging.getLogger('werkzeug')
@@ -85,6 +85,7 @@ def reset_camera_properties():
     State.recording_progress = None
     State.current_recording_task = None
     State.current_image_index = 0
+    State.current_lighting_index = 0
     State.busy_capturing = False
     State.with_bms_cam = False
 
@@ -115,8 +116,13 @@ def reset_camera_properties():
     if State.isGPIO:
         State.motor = gpio_handler.Motor(State.GPIO_motor_pins)
         State.motor.calibrate()
+        State.leds = gpio_handler.LEDS([20, 16])
     else:
         State.motor = abs_motor_type()
+        State.leds = abs_leds_type()
+
+    State.leds.all_on()
+
 
 
 reset_camera_properties()
@@ -127,6 +133,7 @@ def get_setting(_key):
     if "whatsapp" in _key.lower():
         return "Not so fast, i thought of this...", 200
     return str(getattr(State, _key.replace("-","_"), "")), 200
+
 
 @app.route("/settings/<_key>/<value>", methods=["POST"])
 def set_setting(_key, value):

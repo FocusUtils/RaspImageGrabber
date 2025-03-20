@@ -70,6 +70,7 @@ def start_motor_and_prepare_recording():
 
         
         # start recording
+        State.leds.all_off()
         State.current_image_index = 0
         State.current_recording_task = "Taking pictures..."
         target_total_steps = State.microscope_end - State.microscope_start
@@ -85,13 +86,25 @@ def start_motor_and_prepare_recording():
                 State.real_motor_position += 1
 
             time.sleep(State.shake_rest_delay)
-            State.current_image_index += 1
+            
+            State.leds.on(0)
             State.busy_capturing = True
-            State.camera.Snap(0)
+            State.current_lighting_index = 0
+            State.camera.Snap(0) ## res index 0 and lighting index 0
             while State.busy_capturing:
                 time.sleep(.1)
 
-        time.sleep(2)
+            State.leds.off(0)
+            State.leds.on(1)
+            State.busy_capturing = True
+            State.current_lighting_index = 1
+            State.camera.Snap(0) ## res index 0 and lighting index 1 
+            while State.busy_capturing:
+                time.sleep(.1)
+            State.leds.off(1)
+            State.current_image_index += 1
+
+        time.sleep(.5)
         State.recording_progress = 0
         State.current_recording_task = "Resetting attributes and notifying you..."
         try:
@@ -103,6 +116,7 @@ def start_motor_and_prepare_recording():
             
         State.start_motor_and_prepare_recording_running = False
         State.recording = False
+        State.leds.all_on()
         try:
             State.camera.Close()
         except AttributeError:

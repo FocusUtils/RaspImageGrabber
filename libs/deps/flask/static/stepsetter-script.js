@@ -104,7 +104,12 @@ $(window).on("load", () => {
         }
 
         if (tia_value != Infinity) {
-            $.post(`/image-count/${tia_value}`);
+            $.get(`/settings/recording`).done((data) => {
+                if (data === "False") {
+                    console.log("updating values");
+                    $.post(`/image-count/${tia_value}`);
+                }
+            });
         }
 
     }

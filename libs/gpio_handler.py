@@ -1,6 +1,6 @@
 import time
 import atexit
-from .state import State, abs_camera_type, abs_motor_type
+from .state import State, abs_camera_type, abs_motor_type, abs_leds_type
 
 
 def p_on(pin):
@@ -71,7 +71,6 @@ class Motor(abs_motor_type):
     def cleanup(self):
         for pin in self.pins:
             p_off(pin)
-        GPIO.cleanup()
         
         
     def calibrate(self):
@@ -101,6 +100,33 @@ class Camera(abs_camera_type):
         State.progress()
 
 
+class LEDS(abs_leds_type):
+    def __init__(self, pins):
+        for pin in pins:
+            GPIO.setup(pin, GPIO.OUT)
+            p_off(pin)
+        self.pins = pins
+
+    def on(self, idx):
+        p_on(self.pins[idx])
+
+    def off(self, idx):
+        p_off(self.pins[idx])
+
+    def all_on(self):
+        for pin in self.pins:
+            p_on(pin)
+
+    def all_off(self):
+        for pin in self.pins:
+            p_off(pin)
+
+    def cleanup(self):
+        for pin in self.pins:
+            p_off(pin)
+
 import RPi
 import RPi.GPIO as GPIO
 GPIO.setmode(GPIO.BCM)
+
+atexit.register(GPIO.cleanup)

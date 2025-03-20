@@ -37,7 +37,7 @@ def handleStillImageEvent():
                 pass
             else:
                 pil_image = Image.frombytes("RGB", (info.width, info.height), buff)
-                pil_image.save(str(Path(State.final_image_dir) / f"Image_{State.current_image_index}.tiff"))
+                pil_image.save(str(Path(State.final_image_dir) / f"Image_{State.current_image_index}_{State.current_lighting_index}.tiff"))
                 State.progress()
         
 

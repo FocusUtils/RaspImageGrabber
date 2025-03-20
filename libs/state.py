@@ -100,6 +100,14 @@ abs_camera_type = type("Camera", (ABSType,), dict({
     "Snap": fake_snap_func
 }))
 
+abs_leds_type = type("LEDS", (ABSType,), dict({
+    "on": lambda self,idx: print(f"LED {idx} ON"),
+    "off": lambda self,idx: print(f"LED {idx} OFF"),
+    "all_on": lambda self: print("ALL LEDS ON"),
+    "all_off": lambda self: print("ALL LEDS OFF"),
+    "cleanup": lambda self: print("CLEANING UP LEDS"),
+}))
+
 @dataclass
 class State(metaclass=Meta):
     image_dir: ClassVar[Path]
@@ -117,6 +125,7 @@ class State(metaclass=Meta):
     real_motor_position: ClassVar[int]
     isGPIO: ClassVar[bool]
     motor: ClassVar[abs_motor_type]
+    leds: ClassVar[abs_leds_type]
     server: ClassVar[serving.BaseWSGIServer]
     image_count: ClassVar[int]
     final_image_dir: ClassVar[Path]
@@ -124,6 +133,7 @@ class State(metaclass=Meta):
     bms_enum: ClassVar[list]
     recording_progress: ClassVar[Union[int, None]]
     current_image_index: ClassVar[Union[int, None]]
+    current_lighting_index: ClassVar[Union[int, None]]
     busy_capturing: ClassVar[bool]
     current_recording_task: ClassVar[Union[str, None]]
     
@@ -147,7 +157,7 @@ class State(metaclass=Meta):
     @classmethod
     def progress(cls):
         State.recording_progress = int((State.current_image_index) / (State.image_count) * 100)
-        print(State.recording_progress)
+        print(f"recording progress: {State.recording_progress:.0f}%")
         State.busy_capturing = False
 
 
